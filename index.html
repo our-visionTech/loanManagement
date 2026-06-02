@@ -3,62 +3,97 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Village Loan App</title>
+<title>Village Loan Pro</title>
 
 <style>
 :root{
-    --primary:#2e7d32;
+    --primary:#1b5e20;
+    --accent:#43a047;
     --danger:#d32f2f;
-    --bg:#f4f4f4;
-    --card:#fff;
+    --bg:#f2f2f2;
+    --card:#ffffff;
 }
 
 body{
-    font-family:Arial;
     margin:0;
+    font-family:Arial;
     background:var(--bg);
-    max-width:800px;
-    margin:auto;
 }
 
+/* HEADER */
 header{
     background:var(--primary);
     color:white;
-    padding:15px;
     text-align:center;
+    padding:15px;
 }
 
+/* PAGES */
+.page{
+    display:none;
+    padding:15px;
+}
+
+.active{
+    display:block;
+}
+
+/* CARD */
 .card{
     background:var(--card);
     padding:15px;
-    margin:10px;
     border-radius:10px;
-    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom:15px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
+/* BUTTONS */
 button{
-    padding:10px;
-    margin:5px 0;
     width:100%;
+    padding:10px;
+    margin-top:8px;
     border:none;
     border-radius:6px;
     cursor:pointer;
+    font-weight:bold;
 }
 
-.btn{background:var(--primary);color:white;}
-.btn-danger{background:var(--danger);color:white;}
+.btn{
+    background:var(--accent);
+    color:white;
+}
 
+.btn-danger{
+    background:var(--danger);
+    color:white;
+}
+
+.nav{
+    background:#ddd;
+}
+
+/* INPUT */
 input{
     width:100%;
     padding:10px;
-    margin:5px 0;
+    margin-top:6px;
+    border-radius:6px;
+    border:1px solid #ccc;
 }
 
-.section{display:none;}
-.active{display:block;}
+/* LOAN CARD */
+.loan{
+    border-left:5px solid var(--accent);
+}
 
-.nav-btn{
-    background:#ddd;
+.overdue{
+    border-left-color:var(--danger);
+}
+
+/* SMALL TEXT */
+.small{
+    font-size:12px;
+    color:gray;
 }
 </style>
 </head>
@@ -66,169 +101,207 @@ input{
 <body>
 
 <header>
-<h2>🏠 Village Loan System</h2>
+<h2>🏦 Village Loan Pro</h2>
 </header>
 
 <!-- HOME -->
-<div id="home" class="section active card">
-<h3>Home</h3>
+<div id="home" class="page active">
+<div class="card">
+<h3>Dashboard</h3>
 
-<button class="btn" onclick="show('add')">➕ Add Loan</button>
-<button class="btn" onclick="show('active')">📌 Active Loans</button>
-<button class="btn" onclick="show('done')">✅ Completed Loans</button>
+<button class="btn" onclick="openPage('add')">➕ Add Loan</button>
+<button class="btn" onclick="openPage('loans')">📌 Active Loans</button>
+<button class="btn" onclick="openPage('reports')">📊 Reports</button>
+</div>
 </div>
 
 <!-- ADD LOAN -->
-<div id="add" class="section card">
-<h3>Add Loan</h3>
+<div id="add" class="page">
 
-<input id="name" placeholder="Name">
-<input id="phone" placeholder="Phone">
-<input id="amount" type="number" placeholder="Amount">
+<div class="card">
+<h3>Add New Loan</h3>
+
+<input id="name" placeholder="Borrower Name">
+<input id="phone" placeholder="Phone Number">
+<input id="amount" type="number" placeholder="Loan Amount">
 <input id="rate" type="number" value="10" placeholder="Interest %">
 <input id="due" type="date">
 
 <button class="btn" onclick="addLoan()">Save Loan</button>
-<button class="nav-btn" onclick="show('home')">⬅ Back Home</button>
+<button class="nav" onclick="openPage('home')">Back Home</button>
 </div>
 
-<!-- ACTIVE -->
-<div id="active" class="section card">
+</div>
+
+<!-- LOANS -->
+<div id="loans" class="page">
+
+<div class="card">
 <h3>Active Loans</h3>
 
-<input id="search" oninput="render()" placeholder="Search">
-
-<div id="list"></div>
-
-<button class="nav-btn" onclick="show('home')">⬅ Back Home</button>
+<input id="search" oninput="renderLoans()" placeholder="Search borrower...">
 </div>
 
-<!-- COMPLETED -->
-<div id="done" class="section card">
-<h3>Completed Loans</h3>
+<div id="loanList"></div>
 
-<div id="doneList"></div>
+<button class="nav" onclick="openPage('home')">Back Home</button>
+</div>
 
-<button class="nav-btn" onclick="show('home')">⬅ Back Home</button>
+<!-- REPORTS -->
+<div id="reports" class="page">
+
+<div class="card">
+<h3>Reports</h3>
+
+<div id="reportBox"></div>
+
+<button class="nav" onclick="openPage('home')">Back Home</button>
+</div>
+
 </div>
 
 <script>
 
-let loans = JSON.parse(localStorage.getItem("loans")||"[]");
-let done = JSON.parse(localStorage.getItem("done")||"[]");
+let loans = JSON.parse(localStorage.getItem("loans") || "[]");
+let completed = JSON.parse(localStorage.getItem("completed") || "[]");
 
 function save(){
-localStorage.setItem("loans",JSON.stringify(loans));
-localStorage.setItem("done",JSON.stringify(done));
-render();
+localStorage.setItem("loans", JSON.stringify(loans));
+localStorage.setItem("completed", JSON.stringify(completed));
+renderLoans();
+renderReports();
 }
 
-function show(id){
-document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+/* PAGE NAVIGATION */
+function openPage(id){
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
 document.getElementById(id).classList.add("active");
-render();
+
+renderLoans();
+renderReports();
 }
 
-function format(v){
+/* FORMAT MONEY */
+function money(v){
 return "R " + Number(v).toFixed(2);
 }
 
+/* ADD LOAN */
 function addLoan(){
-let l={
-id:Date.now(),
-name:name.value,
-phone:phone.value,
-amount:+amount.value,
-rate:+rate.value,
-due:due.value,
-paid:0,
-history:[]
+
+let l = {
+id: Date.now(),
+name: name.value,
+phone: phone.value,
+amount: +amount.value,
+rate: +rate.value,
+due: due.value,
+paid: 0,
+history: []
 };
 
-l.total = l.amount + (l.amount*l.rate/100);
+l.total = l.amount + (l.amount * l.rate / 100);
 
 loans.push(l);
 save();
 
-show("active");
+openPage("loans");
 }
 
+/* PAY LOAN */
 function pay(id){
-let amt = +prompt("Payment amount");
-let l = loans.find(x=>x.id==id);
 
-if(!l) return;
+let loan = loans.find(l=>l.id===id);
+if(!loan) return;
 
-if(amt > l.total - l.paid){
-alert("Overpayment not allowed");
+let amt = +prompt("Enter payment amount");
+
+if(isNaN(amt) || amt <= 0){
+alert("Invalid payment");
 return;
 }
 
-l.paid += amt;
-l.history.push({amt,date:new Date().toLocaleDateString()});
+if(amt > loan.total - loan.paid){
+alert("You cannot overpay");
+return;
+}
 
-if(l.paid >= l.total){
-done.push(l);
-loans = loans.filter(x=>x.id!=id);
+loan.paid += amt;
+loan.history.push({amt,date:new Date().toLocaleDateString()});
+
+if(loan.paid >= loan.total){
+completed.push(loan);
+loans = loans.filter(l=>l.id !== id);
 }
 
 save();
 }
 
+/* DELETE */
 function del(id){
-loans = loans.filter(x=>x.id!=id);
+loans = loans.filter(l=>l.id !== id);
 save();
 }
 
-function render(){
+/* RENDER LOANS */
+function renderLoans(){
 
 let q = search?.value?.toLowerCase() || "";
-
-let list = document.getElementById("list");
-let doneList = document.getElementById("doneList");
-
-if(list) list.innerHTML = "";
-if(doneList) doneList.innerHTML = "";
+let box = document.getElementById("loanList");
+box.innerHTML = "";
 
 let today = new Date().toISOString().split("T")[0];
 
 loans
-.filter(l=>l.name.toLowerCase().includes(q)||l.phone.includes(q))
+.filter(l=>l.name.toLowerCase().includes(q) || l.phone.includes(q))
 .forEach(l=>{
 
 let owed = l.total - l.paid;
 let overdue = today > l.due;
 
-list.innerHTML += `
-<div class="card ${overdue?'danger':''}">
+box.innerHTML += `
+<div class="card loan ${overdue?'overdue':''}">
 <b>${l.name}</b><br>
-${l.phone}<br>
-Loan: ${format(l.amount)} | Total: ${format(l.total)}<br>
-Paid: ${format(l.paid)} | Owes: ${format(owed)}<br>
-Due: ${l.due}<br>
+${l.phone}<br><br>
 
-<button class="btn" onclick="pay(${l.id})">Pay</button>
+Loan: ${money(l.amount)}<br>
+Total: ${money(l.total)}<br>
+Paid: ${money(l.paid)}<br>
+Owes: ${money(owed)}<br>
+Due: ${l.due}<br><br>
+
+<button class="btn" onclick="pay(${l.id})">Record Payment</button>
 <button class="btn-danger" onclick="del(${l.id})">Delete</button>
 
-<div>
-${l.history.map(h=>`• ${format(h.amt)} on ${h.date}`).join("<br>")}
+<div class="small">
+${l.history.map(h=>`• ${money(h.amt)} on ${h.date}`).join("<br>")}
 </div>
 </div>
 `;
 });
 
-done.forEach(l=>{
-doneList.innerHTML += `
-<div class="card">
-<b>${l.name}</b><br>
-Completed ✔<br>
-Total Paid: ${format(l.total)}
-</div>
-`;
-});
 }
 
-render();
+/* REPORTS */
+function renderReports(){
+
+let totalLoans = loans.length;
+let totalMoney = loans.reduce((a,b)=>a+b.total,0);
+let totalPaid = loans.reduce((a,b)=>a+b.paid,0);
+
+let box = document.getElementById("reportBox");
+
+box.innerHTML = `
+<p>Total Active Loans: ${totalLoans}</p>
+<p>Total Loaned: ${money(totalMoney)}</p>
+<p>Total Collected: ${money(totalPaid)}</p>
+<p>Outstanding: ${money(totalMoney - totalPaid)}</p>
+`;
+}
+
+/* INIT */
+renderLoans();
+renderReports();
 
 </script>
 
