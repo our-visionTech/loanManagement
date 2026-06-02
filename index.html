@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loan System</title>
+<title>Village Loan System</title>
 
 <style>
 :root{
@@ -13,9 +13,7 @@
     --bg:#f4f6f8;
 }
 
-*{
-    box-sizing:border-box;
-}
+*{box-sizing:border-box;}
 
 body{
     margin:0;
@@ -23,7 +21,30 @@ body{
     background:var(--bg);
 }
 
-/* PAGE SYSTEM */
+/* TOP HEADER */
+.topbar{
+    background:linear-gradient(135deg,#1b5e20,#43a047);
+    color:white;
+    padding:18px;
+    text-align:center;
+    position:sticky;
+    top:0;
+    z-index:1000;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+
+.topbar h1{
+    margin:0;
+    font-size:20px;
+}
+
+.topbar p{
+    margin:4px 0 0;
+    font-size:12px;
+    opacity:0.9;
+}
+
+/* PAGES */
 .page{
     display:none;
     padding:20px;
@@ -35,12 +56,12 @@ h2{
     color:var(--primary);
 }
 
-/* HOME */
+/* HOME GRID */
 .home-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
     gap:15px;
-    max-width:600px;
+    max-width:650px;
     margin:40px auto;
 }
 
@@ -55,23 +76,20 @@ h2{
     cursor:pointer;
 }
 
-/* FIXED FORM CONTAINER (IMPORTANT FIX) */
+/* FORM */
 .form-card{
     width:100%;
-    max-width:420px;
+    max-width:450px;
     margin:20px auto;
     background:white;
     padding:20px;
     border-radius:14px;
     box-shadow:0 2px 10px rgba(0,0,0,0.1);
-
-    /* IMPORTANT FIX FOR OVERFLOW */
     display:flex;
     flex-direction:column;
     gap:12px;
 }
 
-/* INPUT FIX */
 input{
     width:100%;
     padding:12px;
@@ -117,8 +135,8 @@ td{
 /* PROGRESS */
 .progress{
     width:100%;
-    background:#ddd;
     height:10px;
+    background:#ddd;
     border-radius:20px;
     overflow:hidden;
 }
@@ -150,8 +168,32 @@ td{
 .close{
     float:right;
     cursor:pointer;
-    font-size:18px;
     color:red;
+    font-size:18px;
+}
+
+/* 🔙 BACK BUTTON (UPDATED) */
+.back{
+    margin-top:20px;
+    padding:16px;
+    width:100%;
+    max-width:450px;
+    border:none;
+    border-radius:12px;
+    background:var(--primary);
+    color:white;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    display:block;
+    margin-left:auto;
+    margin-right:auto;
+    transition:0.2s;
+}
+
+.back:hover{
+    background:#145a1a;
+    transform:scale(1.02);
 }
 
 /* REPORT GRID */
@@ -180,24 +222,20 @@ td{
 .report-card h3{
     color:var(--primary);
 }
-
-/* BACK BUTTON */
-.back{
-    margin-top:15px;
-    padding:12px;
-    width:100%;
-    border:none;
-    border-radius:10px;
-    background:#ddd;
-}
 </style>
 </head>
 
 <body>
 
+<!-- TOP BAR -->
+<div class="topbar">
+<h1>💰 Village Loan System</h1>
+<p>Cash Loan Tracking Dashboard</p>
+</div>
+
 <!-- HOME -->
 <div id="home" class="page active">
-<h2>🏠 Loan System</h2>
+<h2>Dashboard</h2>
 
 <div class="home-grid">
 <button class="home-btn" onclick="openPage('add')">➕ Add Loan</button>
@@ -207,7 +245,7 @@ td{
 </div>
 </div>
 
-<!-- ADD LOAN (FIXED OVERFLOW ISSUE) -->
+<!-- ADD -->
 <div id="add" class="page">
 <h2>Add Loan</h2>
 
@@ -215,15 +253,13 @@ td{
 <input id="name" placeholder="Borrower Name">
 <input id="phone" placeholder="Phone Number">
 <input id="amount" type="number" placeholder="Loan Amount">
-<input id="rate" type="number" value="10" placeholder="Interest %">
+<input id="rate" type="number" value="10">
 <input id="due" type="date">
 
-<button class="home-btn" onclick="addLoan()" style="width:100%;margin-top:5px;">
-Save Loan
-</button>
+<button class="home-btn" onclick="addLoan()">Save Loan</button>
 </div>
 
-<button class="back" onclick="openPage('home')">⬅ Back</button>
+<button class="back" onclick="openPage('home')">⬅ Back to Home</button>
 </div>
 
 <!-- LOANS -->
@@ -237,7 +273,6 @@ Save Loan
 <th>Total</th>
 <th>Paid</th>
 <th>Balance</th>
-<th>Progress</th>
 <th>Action</th>
 </tr>
 </thead>
@@ -245,7 +280,7 @@ Save Loan
 <tbody id="list"></tbody>
 </table>
 
-<button class="back" onclick="openPage('home')">⬅ Back</button>
+<button class="back" onclick="openPage('home')">⬅ Back to Home</button>
 </div>
 
 <!-- REPORTS -->
@@ -253,50 +288,31 @@ Save Loan
 <h2>Reports</h2>
 
 <div class="report-grid">
-<div class="report-card">
-<h3 id="r-total">0</h3>
-<p>Total Loans</p>
+<div class="report-card"><h3 id="r-total">0</h3><p>Loans</p></div>
+<div class="report-card"><h3 id="r-issued">R 0</h3><p>Issued</p></div>
+<div class="report-card"><h3 id="r-paid">R 0</h3><p>Paid</p></div>
+<div class="report-card"><h3 id="r-balance">R 0</h3><p>Balance</p></div>
 </div>
 
-<div class="report-card">
-<h3 id="r-issued">R 0</h3>
-<p>Total Issued</p>
-</div>
-
-<div class="report-card">
-<h3 id="r-paid">R 0</h3>
-<p>Total Paid</p>
-</div>
-
-<div class="report-card">
-<h3 id="r-balance">R 0</h3>
-<p>Outstanding</p>
-</div>
-</div>
-
-<button class="back" onclick="openPage('home')">⬅ Back</button>
+<button class="back" onclick="openPage('home')">⬅ Back to Home</button>
 </div>
 
 <!-- MODAL -->
 <div class="modal" id="modal">
 <div class="modal-content">
 <span class="close" onclick="closeModal()">✖</span>
-<h3>Enter Payment</h3>
+<h3>Payment</h3>
 <input id="payAmount" type="number" placeholder="Amount">
-<button class="home-btn" onclick="confirmPay()" style="width:100%;margin-top:10px;">
-Confirm
-</button>
+<button class="home-btn" onclick="confirmPay()">Confirm</button>
 </div>
 </div>
 
 <script>
 
 let loans = JSON.parse(localStorage.getItem("loans") || "[]");
-let activePayId = null;
+let activeId = null;
 
-function val(id){
-return document.getElementById(id).value;
-}
+function val(id){return document.getElementById(id).value;}
 
 function save(){
 localStorage.setItem("loans", JSON.stringify(loans));
@@ -321,11 +337,6 @@ due:val("due"),
 paid:0
 };
 
-if(!l.name || !l.amount){
-alert("Fill required fields");
-return;
-}
-
 l.total = l.amount + (l.amount*l.rate/100);
 
 loans.push(l);
@@ -335,7 +346,7 @@ openPage("loans");
 }
 
 function openPay(id){
-activePayId = id;
+activeId = id;
 modal.style.display="flex";
 }
 
@@ -345,9 +356,8 @@ payAmount.value="";
 }
 
 function confirmPay(){
-
 let amt = +payAmount.value;
-let l = loans.find(x=>x.id===activePayId);
+let l = loans.find(x=>x.id===activeId);
 
 if(!l || amt<=0) return;
 
@@ -383,7 +393,6 @@ let total=0, paid=0;
 loans.forEach(l=>{
 
 let bal = l.total - l.paid;
-let pct = (l.paid/l.total)*100;
 
 total += l.total;
 paid += l.paid;
@@ -394,11 +403,6 @@ tbody.innerHTML += `
 <td>R ${l.total.toFixed(2)}</td>
 <td>R ${l.paid.toFixed(2)}</td>
 <td><b>R ${bal.toFixed(2)}</b></td>
-<td>
-<div class="progress">
-<div class="bar" style="width:${pct}%"></div>
-</div>
-</td>
 <td>
 <button class="btn pay" onclick="openPay(${l.id})">Pay</button>
 <button class="btn del" onclick="del(${l.id})">Del</button>
