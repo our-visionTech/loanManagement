@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loan Ledger Pro</title>
+<title>Loan System</title>
 
 <style>
 :root{
@@ -13,13 +13,17 @@
     --bg:#f4f6f8;
 }
 
+*{
+    box-sizing:border-box;
+}
+
 body{
     margin:0;
     font-family:Arial;
     background:var(--bg);
 }
 
-/* PAGES */
+/* PAGE SYSTEM */
 .page{
     display:none;
     padding:20px;
@@ -51,20 +55,26 @@ h2{
     cursor:pointer;
 }
 
-/* FORM CONTAINER FIX */
+/* FIXED FORM CONTAINER (IMPORTANT FIX) */
 .form-card{
-    max-width:450px;
+    width:100%;
+    max-width:420px;
     margin:20px auto;
     background:white;
     padding:20px;
     border-radius:14px;
     box-shadow:0 2px 10px rgba(0,0,0,0.1);
+
+    /* IMPORTANT FIX FOR OVERFLOW */
+    display:flex;
+    flex-direction:column;
+    gap:12px;
 }
 
+/* INPUT FIX */
 input{
     width:100%;
     padding:12px;
-    margin-top:12px;
     border-radius:10px;
     border:1px solid #ccc;
     font-size:14px;
@@ -144,7 +154,7 @@ td{
     color:red;
 }
 
-/* REPORT GRID FIX */
+/* REPORT GRID */
 .report-grid{
     max-width:700px;
     margin:auto;
@@ -153,8 +163,7 @@ td{
     gap:15px;
 }
 
-/* desktop = 2 columns */
-@media (min-width: 700px){
+@media (min-width:700px){
     .report-grid{
         grid-template-columns:1fr 1fr;
     }
@@ -164,12 +173,11 @@ td{
     background:white;
     padding:20px;
     border-radius:14px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.1);
     text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
 }
 
 .report-card h3{
-    margin:5px 0;
     color:var(--primary);
 }
 
@@ -199,22 +207,20 @@ td{
 </div>
 </div>
 
-<!-- ADD LOAN (FIXED INSIDE CONTAINER) -->
+<!-- ADD LOAN (FIXED OVERFLOW ISSUE) -->
 <div id="add" class="page">
 <h2>Add Loan</h2>
 
 <div class="form-card">
-
 <input id="name" placeholder="Borrower Name">
 <input id="phone" placeholder="Phone Number">
 <input id="amount" type="number" placeholder="Loan Amount">
 <input id="rate" type="number" value="10" placeholder="Interest %">
 <input id="due" type="date">
 
-<button class="home-btn" onclick="addLoan()" style="width:100%;margin-top:15px;">
+<button class="home-btn" onclick="addLoan()" style="width:100%;margin-top:5px;">
 Save Loan
 </button>
-
 </div>
 
 <button class="back" onclick="openPage('home')">⬅ Back</button>
@@ -275,10 +281,8 @@ Save Loan
 <div class="modal" id="modal">
 <div class="modal-content">
 <span class="close" onclick="closeModal()">✖</span>
-
 <h3>Enter Payment</h3>
 <input id="payAmount" type="number" placeholder="Amount">
-
 <button class="home-btn" onclick="confirmPay()" style="width:100%;margin-top:10px;">
 Confirm
 </button>
@@ -305,7 +309,6 @@ document.getElementById(id).classList.add("active");
 render();
 }
 
-/* ADD */
 function addLoan(){
 
 let l = {
@@ -319,7 +322,7 @@ paid:0
 };
 
 if(!l.name || !l.amount){
-alert("Fill all required fields");
+alert("Fill required fields");
 return;
 }
 
@@ -331,7 +334,6 @@ save();
 openPage("loans");
 }
 
-/* PAY */
 function openPay(id){
 activePayId = id;
 modal.style.display="flex";
@@ -359,7 +361,6 @@ closeModal();
 save();
 }
 
-/* DELETE */
 function del(id){
 loans = loans.filter(l=>l.id!==id);
 save();
@@ -372,7 +373,6 @@ save();
 }
 }
 
-/* RENDER */
 function render(){
 
 let tbody = document.getElementById("list");
@@ -407,7 +407,6 @@ tbody.innerHTML += `
 `;
 });
 
-/* REPORT */
 document.getElementById("r-total").innerText = loans.length;
 document.getElementById("r-issued").innerText = "R " + total.toFixed(2);
 document.getElementById("r-paid").innerText = "R " + paid.toFixed(2);
