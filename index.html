@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Village Loan App</title>
+
+<style>
+:root{
+    --primary:#2e7d32;
+    --danger:#d32f2f;
+    --bg:#f4f4f4;
+    --card:#fff;
+}
+
+body{
+    font-family:Arial;
+    margin:0;
+    background:var(--bg);
+    max-width:800px;
+    margin:auto;
+}
+
+header{
+    background:var(--primary);
+    color:white;
+    padding:15px;
+    text-align:center;
+}
+
+.card{
+    background:var(--card);
+    padding:15px;
+    margin:10px;
+    border-radius:10px;
+    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+button{
+    padding:10px;
+    margin:5px 0;
+    width:100%;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.btn{background:var(--primary);color:white;}
+.btn-danger{background:var(--danger);color:white;}
+
+input{
+    width:100%;
+    padding:10px;
+    margin:5px 0;
+}
+
+.section{display:none;}
+.active{display:block;}
+
+.nav-btn{
+    background:#ddd;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>🏠 Village Loan System</h2>
+</header>
+
+<!-- HOME -->
+<div id="home" class="section active card">
+<h3>Home</h3>
+
+<button class="btn" onclick="show('add')">➕ Add Loan</button>
+<button class="btn" onclick="show('active')">📌 Active Loans</button>
+<button class="btn" onclick="show('done')">✅ Completed Loans</button>
+</div>
+
+<!-- ADD LOAN -->
+<div id="add" class="section card">
+<h3>Add Loan</h3>
+
+<input id="name" placeholder="Name">
+<input id="phone" placeholder="Phone">
+<input id="amount" type="number" placeholder="Amount">
+<input id="rate" type="number" value="10" placeholder="Interest %">
+<input id="due" type="date">
+
+<button class="btn" onclick="addLoan()">Save Loan</button>
+<button class="nav-btn" onclick="show('home')">⬅ Back Home</button>
+</div>
+
+<!-- ACTIVE -->
+<div id="active" class="section card">
+<h3>Active Loans</h3>
+
+<input id="search" oninput="render()" placeholder="Search">
+
+<div id="list"></div>
+
+<button class="nav-btn" onclick="show('home')">⬅ Back Home</button>
+</div>
+
+<!-- COMPLETED -->
+<div id="done" class="section card">
+<h3>Completed Loans</h3>
+
+<div id="doneList"></div>
+
+<button class="nav-btn" onclick="show('home')">⬅ Back Home</button>
+</div>
+
+<script>
+
+let loans = JSON.parse(localStorage.getItem("loans")||"[]");
+let done = JSON.parse(localStorage.getItem("done")||"[]");
+
+function save(){
+localStorage.setItem("loans",JSON.stringify(loans));
+localStorage.setItem("done",JSON.stringify(done));
+render();
+}
+
+function show(id){
+document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+render();
+}
+
+function format(v){
+return "R " + Number(v).toFixed(2);
+}
+
+function addLoan(){
+let l={
+id:Date.now(),
+name:name.value,
+phone:phone.value,
+amount:+amount.value,
+rate:+rate.value,
+due:due.value,
+paid:0,
+history:[]
+};
+
+l.total = l.amount + (l.amount*l.rate/100);
+
+loans.push(l);
+save();
+
+show("active");
+}
+
+function pay(id){
+let amt = +prompt("Payment amount");
+let l = loans.find(x=>x.id==id);
+
+if(!l) return;
+
+if(amt > l.total - l.paid){
+alert("Overpayment not allowed");
+return;
+}
+
+l.paid += amt;
+l.history.push({amt,date:new Date().toLocaleDateString()});
+
+if(l.paid >= l.total){
+done.push(l);
+loans = loans.filter(x=>x.id!=id);
+}
+
+save();
+}
+
+function del(id){
+loans = loans.filter(x=>x.id!=id);
+save();
+}
+
+function render(){
+
+let q = search?.value?.toLowerCase() || "";
+
+let list = document.getElementById("list");
+let doneList = document.getElementById("doneList");
+
+if(list) list.innerHTML = "";
+if(doneList) doneList.innerHTML = "";
+
+let today = new Date().toISOString().split("T")[0];
+
+loans
+.filter(l=>l.name.toLowerCase().includes(q)||l.phone.includes(q))
+.forEach(l=>{
+
+let owed = l.total - l.paid;
+let overdue = today > l.due;
+
+list.innerHTML += `
+<div class="card ${overdue?'danger':''}">
+<b>${l.name}</b><br>
+${l.phone}<br>
+Loan: ${format(l.amount)} | Total: ${format(l.total)}<br>
+Paid: ${format(l.paid)} | Owes: ${format(owed)}<br>
+Due: ${l.due}<br>
+
+<button class="btn" onclick="pay(${l.id})">Pay</button>
+<button class="btn-danger" onclick="del(${l.id})">Delete</button>
+
+<div>
+${l.history.map(h=>`• ${format(h.amt)} on ${h.date}`).join("<br>")}
+</div>
+</div>
+`;
+});
+
+done.forEach(l=>{
+doneList.innerHTML += `
+<div class="card">
+<b>${l.name}</b><br>
+Completed ✔<br>
+Total Paid: ${format(l.total)}
+</div>
+`;
+});
+}
+
+render();
+
+</script>
+
+</body>
+</html>
