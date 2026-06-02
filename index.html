@@ -10,7 +10,6 @@
     --primary:#1b5e20;
     --accent:#43a047;
     --danger:#d32f2f;
-    --bg:#e9ecef;
 }
 
 body{
@@ -23,7 +22,7 @@ body{
 .book{
     max-width:1000px;
     margin:auto;
-    padding:10px;
+    padding:15px;
 }
 
 /* PAGE */
@@ -31,7 +30,7 @@ body{
     display:none;
     background:white;
     min-height:90vh;
-    padding:20px;
+    padding:25px;
     border-radius:12px;
     box-shadow:0 10px 25px rgba(0,0,0,0.15);
 }
@@ -40,28 +39,52 @@ body{
     display:block;
 }
 
-/* HOME GRID */
-.grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:15px;
-    margin-top:20px;
+h2{
+    text-align:center;
+    color:var(--primary);
 }
 
-button{
-    width:100%;
-    padding:14px;
+/* 🔥 HOME GRID (2 COLUMNS FIXED) */
+.home-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;   /* 👈 TWO COLUMNS */
+    gap:15px;
+    margin-top:40px;
+    max-width:700px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+/* BIG BUTTONS */
+.home-btn{
+    padding:25px;
+    font-size:18px;
+    font-weight:bold;
+    border:none;
+    border-radius:14px;
+    cursor:pointer;
+    background:var(--accent);
+    color:white;
+    box-shadow:0 6px 15px rgba(0,0,0,0.15);
+    transition:0.2s;
+}
+
+.home-btn:hover{
+    transform:scale(1.03);
+    background:#2e7d32;
+}
+
+/* NAV */
+.nav{
+    background:#ddd;
+    padding:12px;
     border:none;
     border-radius:10px;
-    font-weight:bold;
-    cursor:pointer;
-    font-size:15px;
+    margin-top:15px;
+    width:100%;
 }
 
-.btn{background:var(--accent);color:white;}
-.btn-danger{background:var(--danger);color:white;}
-.nav{background:#ddd;}
-
+/* INPUTS */
 input{
     width:100%;
     padding:12px;
@@ -70,6 +93,7 @@ input{
     border:1px solid #ccc;
 }
 
+/* CARDS */
 .card{
     background:#fff;
     padding:15px;
@@ -88,9 +112,11 @@ input{
     color:gray;
 }
 
-h2{
-    text-align:center;
-    color:var(--primary);
+/* 📱 MOBILE RESPONSIVE */
+@media(max-width:700px){
+.home-grid{
+    grid-template-columns:1fr;   /* single column on phone */
+}
 }
 </style>
 </head>
@@ -103,12 +129,13 @@ h2{
 <div id="home" class="page active">
 <h2>🏠 Loan Book System</h2>
 
-<div class="grid">
-<button class="btn" onclick="openPage('add')">➕ Add Loan</button>
-<button class="btn" onclick="openPage('loans')">📌 Active Loans</button>
-<button class="btn" onclick="openPage('reports')">📊 Reports</button>
-<button class="nav" onclick="resetData()">♻ Reset</button>
+<div class="home-grid">
+<button class="home-btn" onclick="openPage('add')">➕ Add Loan</button>
+<button class="home-btn" onclick="openPage('loans')">📌 Active Loans</button>
+<button class="home-btn" onclick="openPage('reports')">📊 Reports</button>
+<button class="home-btn" onclick="resetData()">♻ Reset Data</button>
 </div>
+
 </div>
 
 <!-- ADD -->
@@ -121,8 +148,8 @@ h2{
 <input id="rate" type="number" value="10" placeholder="Interest %">
 <input id="due" type="date">
 
-<button class="btn" onclick="addLoan()">Save Loan</button>
-<button class="nav" onclick="openPage('home')">⬅ Back</button>
+<button class="home-btn" style="width:100%;margin-top:15px;" onclick="addLoan()">Save Loan</button>
+<button class="nav" onclick="openPage('home')">⬅ Back Home</button>
 </div>
 
 <!-- LOANS -->
@@ -133,7 +160,7 @@ h2{
 
 <div id="list"></div>
 
-<button class="nav" onclick="openPage('home')">⬅ Back</button>
+<button class="nav" onclick="openPage('home')">⬅ Back Home</button>
 </div>
 
 <!-- REPORTS -->
@@ -142,37 +169,32 @@ h2{
 
 <div class="card" id="reportBox"></div>
 
-<button class="nav" onclick="openPage('home')">⬅ Back</button>
+<button class="nav" onclick="openPage('home')">⬅ Back Home</button>
 </div>
 
 </div>
 
 <script>
 
-/* SAFE STORAGE */
 let loans = JSON.parse(localStorage.getItem("loans") || "[]");
 let done = JSON.parse(localStorage.getItem("done") || "[]");
 
-/* SAVE */
 function save(){
 localStorage.setItem("loans", JSON.stringify(loans));
 localStorage.setItem("done", JSON.stringify(done));
 render();
 }
 
-/* PAGE SWITCH */
 function openPage(id){
 document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
 document.getElementById(id).classList.add("active");
 render();
 }
 
-/* MONEY FORMAT */
 function money(v){
 return "R " + Number(v || 0).toFixed(2);
 }
 
-/* ADD LOAN (FIXED) */
 function addLoan(){
 
 let nameVal = document.getElementById("name").value.trim();
@@ -205,18 +227,12 @@ save();
 openPage("loans");
 }
 
-/* PAY */
 function pay(id){
 
 let loan = loans.find(l=>l.id === id);
-if(!loan) return;
-
 let amt = parseFloat(prompt("Enter payment amount"));
 
-if(isNaN(amt) || amt <= 0){
-alert("Invalid amount");
-return;
-}
+if(!loan || isNaN(amt)) return;
 
 if(amt > loan.total - loan.paid){
 alert("Overpayment not allowed");
@@ -224,8 +240,6 @@ return;
 }
 
 loan.paid += amt;
-
-if(!loan.history) loan.history = [];
 
 loan.history.push({
 amt: amt,
@@ -240,13 +254,11 @@ loans = loans.filter(l=>l.id !== id);
 save();
 }
 
-/* DELETE */
 function del(id){
 loans = loans.filter(l=>l.id !== id);
 save();
 }
 
-/* RESET */
 function resetData(){
 if(confirm("Delete all data?")){
 loans = [];
@@ -255,17 +267,15 @@ save();
 }
 }
 
-/* RENDER */
 function render(){
 
 let q = (document.getElementById("search")?.value || "").toLowerCase();
 
 let list = document.getElementById("list");
-let report = document.getElementById("reportBox");
-
 if(list) list.innerHTML = "";
 
-/* LOANS */
+let today = new Date().toISOString().split("T")[0];
+
 loans
 .filter(l =>
 (l.name || "").toLowerCase().includes(q) ||
@@ -274,12 +284,12 @@ loans
 .forEach(l=>{
 
 let owed = (l.total || 0) - (l.paid || 0);
-let overdue = new Date().toISOString().split("T")[0] > l.due;
+let overdue = today > l.due;
 
 list.innerHTML += `
 <div class="card ${overdue ? 'overdue' : ''}">
-<b>${l.name || ''}</b><br>
-${l.phone || ''}<br><br>
+<b>${l.name}</b><br>
+${l.phone}<br><br>
 
 Loan: ${money(l.amount)}<br>
 Total: ${money(l.total)}<br>
@@ -287,8 +297,8 @@ Paid: ${money(l.paid)}<br>
 Owes: ${money(owed)}<br>
 Due: ${l.due}<br><br>
 
-<button class="btn" onclick="pay(${l.id})">Pay</button>
-<button class="btn-danger" onclick="del(${l.id})">Delete</button>
+<button class="home-btn" style="width:100%;padding:10px;font-size:14px;" onclick="pay(${l.id})">Pay</button>
+<button class="home-btn" style="width:100%;padding:10px;font-size:14px;background:#d32f2f;" onclick="del(${l.id})">Delete</button>
 
 <div class="small">
 ${(l.history || []).map(h =>
@@ -299,7 +309,7 @@ ${(l.history || []).map(h =>
 `;
 });
 
-/* REPORTS */
+let report = document.getElementById("reportBox");
 if(report){
 let total = loans.reduce((a,b)=>a+(b.total||0),0);
 let paid = loans.reduce((a,b)=>a+(b.paid||0),0);
@@ -314,7 +324,6 @@ report.innerHTML = `
 
 }
 
-/* INIT */
 render();
 
 </script>
