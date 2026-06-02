@@ -3,185 +3,284 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Village Loan Book Pro</title>
+<title>Loan Ledger Pro</title>
 
 <style>
 :root{
     --primary:#1b5e20;
     --accent:#43a047;
     --danger:#d32f2f;
+    --bg:#f4f6f8;
 }
 
 body{
     margin:0;
     font-family:Arial;
-    background:linear-gradient(135deg,#dfe9f3,#ffffff);
+    background:var(--bg);
 }
 
-/* BOOK */
-.book{
-    max-width:1000px;
-    margin:auto;
-    padding:15px;
-}
-
-/* PAGE */
+/* PAGES */
 .page{
     display:none;
-    background:white;
-    min-height:90vh;
-    padding:25px;
-    border-radius:12px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.15);
+    padding:20px;
 }
-
-.active{
-    display:block;
-}
+.active{display:block;}
 
 h2{
     text-align:center;
     color:var(--primary);
 }
 
-/* 🔥 HOME GRID (2 COLUMNS FIXED) */
+/* HOME BUTTON GRID FIX */
 .home-grid{
     display:grid;
-    grid-template-columns:1fr 1fr;   /* 👈 TWO COLUMNS */
+    grid-template-columns:1fr 1fr;
     gap:15px;
-    margin-top:40px;
-    max-width:700px;
-    margin-left:auto;
-    margin-right:auto;
+    max-width:600px;
+    margin:40px auto;
 }
 
-/* BIG BUTTONS */
 .home-btn{
     padding:25px;
-    font-size:18px;
+    font-size:16px;
     font-weight:bold;
     border:none;
     border-radius:14px;
-    cursor:pointer;
     background:var(--accent);
     color:white;
-    box-shadow:0 6px 15px rgba(0,0,0,0.15);
-    transition:0.2s;
+    cursor:pointer;
+    text-align:center;
 }
 
-.home-btn:hover{
-    transform:scale(1.03);
-    background:#2e7d32;
+/* TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    border-radius:12px;
+    overflow:hidden;
 }
 
-/* NAV */
-.nav{
-    background:#ddd;
+th{
+    background:var(--primary);
+    color:white;
     padding:12px;
+    text-align:left;
+}
+
+td{
+    padding:12px;
+    border-bottom:1px solid #eee;
+}
+
+/* ACTION BUTTONS FIX */
+.btn{
+    padding:8px 12px;
     border:none;
-    border-radius:10px;
-    margin-top:15px;
-    width:100%;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:12px;
+    margin:2px;
 }
 
-/* INPUTS */
-input{
+.pay{background:var(--accent);color:white;}
+.del{background:var(--danger);color:white;}
+
+/* PROGRESS */
+.progress{
+    width:100%;
+    background:#ddd;
+    height:10px;
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.bar{
+    height:10px;
+    background:var(--accent);
+}
+
+/* MODAL */
+.modal{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+    justify-content:center;
+    align-items:center;
+}
+
+.modal-content{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    width:320px;
+    text-align:center;
+}
+
+.modal-content input{
     width:100%;
     padding:12px;
-    margin-top:8px;
+    margin-top:10px;
     border-radius:8px;
     border:1px solid #ccc;
 }
 
-/* CARDS */
-.card{
-    background:#fff;
-    padding:15px;
-    margin-top:15px;
-    border-radius:10px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.1);
-    border-left:6px solid var(--accent);
+.close{
+    float:right;
+    cursor:pointer;
+    font-size:18px;
+    color:red;
 }
 
-.overdue{
-    border-left-color:var(--danger);
+/* REPORT FIX */
+.report-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:15px;
+    max-width:600px;
+    margin:auto;
+}
+
+.report-card{
+    background:white;
+    padding:20px;
+    border-radius:14px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+    text-align:center;
+}
+
+.report-card h3{
+    margin:5px 0;
+    color:var(--primary);
 }
 
 .small{
-    font-size:12px;
-    color:gray;
+    font-size:14px;
+    color:#666;
 }
 
-/* 📱 MOBILE RESPONSIVE */
-@media(max-width:700px){
-.home-grid{
-    grid-template-columns:1fr;   /* single column on phone */
-}
+/* BACK BUTTON */
+.back{
+    margin-top:15px;
+    padding:12px;
+    width:100%;
+    border:none;
+    border-radius:10px;
+    background:#ddd;
 }
 </style>
 </head>
 
 <body>
 
-<div class="book">
-
 <!-- HOME -->
 <div id="home" class="page active">
-<h2>🏠 Loan Book System</h2>
+<h2>🏠 Loan System</h2>
 
 <div class="home-grid">
 <button class="home-btn" onclick="openPage('add')">➕ Add Loan</button>
-<button class="home-btn" onclick="openPage('loans')">📌 Active Loans</button>
-<button class="home-btn" onclick="openPage('reports')">📊 Reports</button>
-<button class="home-btn" onclick="resetData()">♻ Reset Data</button>
+<button class="home-btn" onclick="openPage('loans')">📊 Active Loans</button>
+<button class="home-btn" onclick="openPage('reports')">📈 Reports</button>
+<button class="home-btn" onclick="resetAll()">♻ Reset</button>
 </div>
-
 </div>
 
 <!-- ADD -->
 <div id="add" class="page">
 <h2>Add Loan</h2>
 
-<input id="name" placeholder="Borrower Name">
-<input id="phone" placeholder="Phone Number">
-<input id="amount" type="number" placeholder="Loan Amount">
+<input id="name" placeholder="Name">
+<input id="phone" placeholder="Phone">
+<input id="amount" type="number" placeholder="Amount">
 <input id="rate" type="number" value="10" placeholder="Interest %">
 <input id="due" type="date">
 
-<button class="home-btn" style="width:100%;margin-top:15px;" onclick="addLoan()">Save Loan</button>
-<button class="nav" onclick="openPage('home')">⬅ Back Home</button>
+<button class="home-btn" onclick="addLoan()" style="width:100%;margin-top:15px;">
+Save Loan
+</button>
+
+<button class="back" onclick="openPage('home')">⬅ Back</button>
 </div>
 
 <!-- LOANS -->
 <div id="loans" class="page">
 <h2>Active Loans</h2>
 
-<input id="search" oninput="render()" placeholder="Search borrower...">
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Total</th>
+<th>Paid</th>
+<th>Balance</th>
+<th>Progress</th>
+<th>Action</th>
+</tr>
+</thead>
 
-<div id="list"></div>
+<tbody id="list"></tbody>
+</table>
 
-<button class="nav" onclick="openPage('home')">⬅ Back Home</button>
+<button class="back" onclick="openPage('home')">⬅ Back</button>
 </div>
 
-<!-- REPORTS -->
+<!-- REPORTS FIXED -->
 <div id="reports" class="page">
-<h2>Reports</h2>
+<h2>Reports Dashboard</h2>
 
-<div class="card" id="reportBox"></div>
+<div class="report-grid">
 
-<button class="nav" onclick="openPage('home')">⬅ Back Home</button>
+<div class="report-card">
+<h3 id="r-total">0</h3>
+<p class="small">Total Loans</p>
 </div>
 
+<div class="report-card">
+<h3 id="r-issued">R 0</h3>
+<p class="small">Total Issued</p>
+</div>
+
+<div class="report-card">
+<h3 id="r-paid">R 0</h3>
+<p class="small">Total Paid</p>
+</div>
+
+<div class="report-card">
+<h3 id="r-balance">R 0</h3>
+<p class="small">Outstanding</p>
+</div>
+
+</div>
+
+<button class="back" onclick="openPage('home')">⬅ Back</button>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+<div class="modal-content">
+<span class="close" onclick="closeModal()">✖</span>
+
+<h3>Enter Payment</h3>
+
+<input id="payAmount" type="number" placeholder="Amount">
+
+<button class="home-btn" onclick="confirmPay()" style="width:100%;margin-top:15px;">
+Confirm
+</button>
+</div>
 </div>
 
 <script>
 
 let loans = JSON.parse(localStorage.getItem("loans") || "[]");
-let done = JSON.parse(localStorage.getItem("done") || "[]");
+let activePayId = null;
 
 function save(){
 localStorage.setItem("loans", JSON.stringify(loans));
-localStorage.setItem("done", JSON.stringify(done));
 render();
 }
 
@@ -191,136 +290,107 @@ document.getElementById(id).classList.add("active");
 render();
 }
 
-function money(v){
-return "R " + Number(v || 0).toFixed(2);
-}
-
 function addLoan(){
 
-let nameVal = document.getElementById("name").value.trim();
-let phoneVal = document.getElementById("phone").value.trim();
-let amountVal = parseFloat(document.getElementById("amount").value);
-let rateVal = parseFloat(document.getElementById("rate").value);
-let dueVal = document.getElementById("due").value;
-
-if(!nameVal || !phoneVal || !amountVal || !dueVal){
-alert("Please fill all fields");
-return;
-}
-
-let loan = {
-id: Date.now(),
-name: nameVal,
-phone: phoneVal,
-amount: amountVal,
-rate: rateVal || 0,
-due: dueVal,
-paid: 0,
-history: []
+let l = {
+id:Date.now(),
+name:name.value,
+phone:phone.value,
+amount:+amount.value,
+rate:+rate.value,
+due:due.value,
+paid:0
 };
 
-loan.total = loan.amount + (loan.amount * loan.rate / 100);
+l.total = l.amount + (l.amount*l.rate/100);
 
-loans.push(loan);
+loans.push(l);
 save();
 
 openPage("loans");
 }
 
-function pay(id){
-
-let loan = loans.find(l=>l.id === id);
-let amt = parseFloat(prompt("Enter payment amount"));
-
-if(!loan || isNaN(amt)) return;
-
-if(amt > loan.total - loan.paid){
-alert("Overpayment not allowed");
-return;
+/* PAYMENT */
+function openPay(id){
+activePayId = id;
+modal.style.display="flex";
 }
 
-loan.paid += amt;
-
-loan.history.push({
-amt: amt,
-date: new Date().toLocaleDateString()
-});
-
-if(loan.paid >= loan.total){
-done.push(loan);
-loans = loans.filter(l=>l.id !== id);
+function closeModal(){
+modal.style.display="none";
+payAmount.value="";
 }
 
+function confirmPay(){
+
+let amt = +payAmount.value;
+let l = loans.find(x=>x.id===activePayId);
+
+if(!l || amt<=0) return;
+
+l.paid += amt;
+
+if(l.paid >= l.total){
+loans = loans.filter(x=>x.id!==l.id);
+}
+
+closeModal();
 save();
 }
 
+/* DELETE */
 function del(id){
-loans = loans.filter(l=>l.id !== id);
+loans = loans.filter(l=>l.id!==id);
 save();
 }
 
-function resetData(){
-if(confirm("Delete all data?")){
-loans = [];
-done = [];
+function resetAll(){
+if(confirm("Clear all data?")){
+loans=[];
 save();
 }
 }
 
+/* RENDER */
 function render(){
 
-let q = (document.getElementById("search")?.value || "").toLowerCase();
+let tbody = document.getElementById("list");
+if(tbody) tbody.innerHTML="";
 
-let list = document.getElementById("list");
-if(list) list.innerHTML = "";
+let total=0, paid=0;
 
-let today = new Date().toISOString().split("T")[0];
+loans.forEach(l=>{
 
-loans
-.filter(l =>
-(l.name || "").toLowerCase().includes(q) ||
-(l.phone || "").includes(q)
-)
-.forEach(l=>{
+let bal = l.total - l.paid;
+let pct = (l.paid/l.total)*100;
 
-let owed = (l.total || 0) - (l.paid || 0);
-let overdue = today > l.due;
+total += l.total;
+paid += l.paid;
 
-list.innerHTML += `
-<div class="card ${overdue ? 'overdue' : ''}">
-<b>${l.name}</b><br>
-${l.phone}<br><br>
-
-Loan: ${money(l.amount)}<br>
-Total: ${money(l.total)}<br>
-Paid: ${money(l.paid)}<br>
-Owes: ${money(owed)}<br>
-Due: ${l.due}<br><br>
-
-<button class="home-btn" style="width:100%;padding:10px;font-size:14px;" onclick="pay(${l.id})">Pay</button>
-<button class="home-btn" style="width:100%;padding:10px;font-size:14px;background:#d32f2f;" onclick="del(${l.id})">Delete</button>
-
-<div class="small">
-${(l.history || []).map(h =>
-`• ${money(h.amt)} on ${h.date}`
-).join("<br>")}
+tbody.innerHTML += `
+<tr>
+<td>${l.name}</td>
+<td>R ${l.total.toFixed(2)}</td>
+<td>R ${l.paid.toFixed(2)}</td>
+<td><b>R ${bal.toFixed(2)}</b></td>
+<td style="width:160px">
+<div class="progress">
+<div class="bar" style="width:${pct}%"></div>
 </div>
-</div>
+</td>
+<td>
+<button class="btn pay" onclick="openPay(${l.id})">Pay</button>
+<button class="btn del" onclick="del(${l.id})">Del</button>
+</td>
+</tr>
 `;
 });
 
-let report = document.getElementById("reportBox");
-if(report){
-let total = loans.reduce((a,b)=>a+(b.total||0),0);
-let paid = loans.reduce((a,b)=>a+(b.paid||0),0);
-
-report.innerHTML = `
-<b>Total Loans:</b> ${loans.length}<br>
-<b>Total Issued:</b> ${money(total)}<br>
-<b>Total Paid:</b> ${money(paid)}<br>
-<b>Outstanding:</b> ${money(total - paid)}
-`;
-}
+/* REPORT FIX */
+document.getElementById("r-total").innerText = loans.length;
+document.getElementById("r-issued").innerText = "R " + total.toFixed(2);
+document.getElementById("r-paid").innerText = "R " + paid.toFixed(2);
+document.getElementById("r-balance").innerText = "R " + (total-paid).toFixed(2);
 
 }
 
